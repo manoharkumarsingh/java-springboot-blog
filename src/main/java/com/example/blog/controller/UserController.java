@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.example.blog.security.JwtService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @RestController
 @RequestMapping("/user")
@@ -16,6 +18,27 @@ public class UserController {
     private UserService userService;
     @Autowired
     private BlogEntryService blogEntryService;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtService jwtService;
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody User user) {
+        User existingUser = userService.findByEmail(user.getEmail());
+
+        if (existingUser == null ||
+                !passwordEncoder.matches(user.getPassword(), existingUser.getPassword())) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Invalid email or password");
+        }
+
+        String token = jwtService.generateToken(existingUser.getEmail());
+
+        return ResponseEntity.ok(token);
+    }
 
     @PostMapping
     public ResponseEntity<?> saveUser(@RequestBody User user) {
