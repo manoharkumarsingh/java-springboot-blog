@@ -36,4 +36,8 @@ public class BlogEntryService {
     public BlogEntry updateBlogEntry(BlogEntry blogEntry) {
         return blogEntryRepository.save(blogEntry);
     }
+
+    public void deleteAllBlogEntries() {
+        blogEntryRepository.deleteAll();
+    }
 }

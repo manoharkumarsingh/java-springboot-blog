@@ -17,4 +17,6 @@ public class BlogEntry {
     private String title;
     @NonNull
     private String content;
+    @NonNull
+    private ObjectId userId;
 }
