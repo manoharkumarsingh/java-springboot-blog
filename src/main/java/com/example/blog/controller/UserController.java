@@ -1,5 +1,7 @@
 package com.example.blog.controller;
 
+import com.example.blog.dto.BlogEntryResponse;
+import com.example.blog.entity.BlogEntry;
 import com.example.blog.entity.User;
 import com.example.blog.service.BlogEntryService;
 import com.example.blog.service.UserService;
@@ -7,9 +9,12 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import com.example.blog.security.JwtService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/user")
@@ -23,6 +28,22 @@ public class UserController {
 
     @Autowired
     private JwtService jwtService;
+    @GetMapping("/blog")
+    public ResponseEntity<?> getUserBlog(Authentication authentication) {
+        User user = userService.findByEmail(authentication.getName());
+
+        if (user == null) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Authenticated user not found");
+        }
+
+        List<BlogEntryResponse> blogs =
+                blogEntryService.getBlogsByUserId(user.getId());
+
+
+        return ResponseEntity.ok(blogs);
+    }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User user) {
